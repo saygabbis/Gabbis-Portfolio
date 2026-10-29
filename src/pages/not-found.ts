@@ -1,5 +1,5 @@
 import { icon } from '../components/icons';
-import { sticker } from '../components/stickers';
+import { doodle } from '../components/doodles';
 import { esc } from '../core/dom';
 import { popLetters } from '../core/motion';
 import type { Page } from '../core/router';
@@ -11,7 +11,7 @@ export const notFound: Page = {
     const n = t().notFound;
     return `
     <section class="page-head wrap nf">
-      ${sticker('star', 'nf-star')}
+      ${doodle('spiral', 'nf-star', 'var(--sky)')}
       <h1 class="page-title nf-code" data-split>404</h1>
       <h2 data-reveal="up">${esc(n.title)}</h2>
       <p class="page-sub" data-reveal="up">${esc(n.text)}</p>

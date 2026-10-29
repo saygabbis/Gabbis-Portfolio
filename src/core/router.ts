@@ -25,33 +25,33 @@ const clean = (p: string) => (p.length > 1 ? p.replace(/\/+$/, '') : p);
 export const currentRoute = () => currentPath;
 export const pageFor = (path: string) => routes[clean(path)] ?? notFound;
 
-// ---- cortina de transição: três faixas coloridas descendo e subindo ----
+// ---- transição: uma folha do caderno vira por cima da página ----
 let curtain: HTMLElement;
+let sheet: HTMLElement;
 function buildCurtain() {
   curtain = document.createElement('div');
-  curtain.className = 'curtain';
+  curtain.className = 'page-turn';
   curtain.setAttribute('aria-hidden', 'true');
-  curtain.innerHTML = '<span></span><span></span><span></span><b class="curtain-star">✦</b>';
+  curtain.innerHTML = '<div class="sheet"><span class="sheet-shade"></span></div>';
   document.body.append(curtain);
+  sheet = curtain.querySelector('.sheet')!;
 }
 
 function curtainIn() {
-  const bars = curtain.querySelectorAll('span');
   return gsap
     .timeline()
     .set(curtain, { visibility: 'visible' })
-    .set(bars, { transformOrigin: '50% 0%' })
-    .fromTo(bars, { scaleY: 0 }, { scaleY: 1, duration: 0.5, ease: 'expo.inOut', stagger: 0.07 })
-    .fromTo('.curtain-star', { scale: 0, rotate: -180 }, { scale: 1, rotate: 0, duration: 0.45, ease: 'back.out(2)' }, '-=0.25');
+    .set(sheet, { transformOrigin: '0% 50%' })
+    .fromTo(sheet, { rotationY: -110 }, { rotationY: 0, duration: 0.55, ease: 'power3.inOut' })
+    .fromTo('.sheet-shade', { opacity: 0.6 }, { opacity: 0, duration: 0.55, ease: 'power2.out' }, 0);
 }
 
 function curtainOut() {
-  const bars = curtain.querySelectorAll('span');
   return gsap
     .timeline()
-    .to('.curtain-star', { scale: 0, rotate: 180, duration: 0.3, ease: 'back.in(2)' })
-    .set(bars, { transformOrigin: '50% 100%' })
-    .to(bars, { scaleY: 0, duration: 0.55, ease: 'expo.inOut', stagger: 0.07 }, '-=0.1')
+    .set(sheet, { transformOrigin: '100% 50%' })
+    .to(sheet, { rotationY: 110, duration: 0.6, ease: 'power3.inOut' })
+    .to('.sheet-shade', { opacity: 0.6, duration: 0.6, ease: 'power2.in' }, 0)
     .set(curtain, { visibility: 'hidden' });
 }
 

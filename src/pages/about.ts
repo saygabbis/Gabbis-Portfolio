@@ -1,6 +1,6 @@
 import { gsap } from 'gsap';
 import { icon } from '../components/icons';
-import { sticker } from '../components/stickers';
+import { doodle } from '../components/doodles';
 import { $, each, esc, reducedMotion } from '../core/dom';
 import { openLightbox } from '../core/lightbox';
 import { popLetters } from '../core/motion';
@@ -17,15 +17,15 @@ export const aboutPage: Page = {
     const a = t().about;
     return `
     <section class="page-head wrap">
-      <h1 class="page-title" data-split>${esc(a.title)}</h1>
+      <h1 class="page-title"><span data-split>${esc(a.title)}</span>${doodle('underline', 'title-underline', 'var(--crimson)')}</h1>
     </section>
     <section class="wrap about-grid">
       <div class="about-photo" data-reveal="pop">
         <img src="/media/art/full/pfp.webp" alt="Gabbis" />
-        ${sticker('star', 'ap ap-1')}${sticker('heart', 'ap ap-2')}
+        <span class="tape tape-crimson tape-tl" aria-hidden="true"></span><span class="tape tape-sky tape-tr" aria-hidden="true"></span>${doodle('star', 'ap ap-1', 'var(--crimson)')}${doodle('spiral', 'ap ap-2', 'var(--sky)')}
       </div>
       <div class="about-text">
-        <h2 class="about-hello" data-reveal="up">${esc(a.hello)} <span class="wave" aria-hidden="true">👋</span></h2>
+        <h2 class="about-hello" data-reveal="up">${esc(a.hello)}</h2>
         ${each(a.bio, (p) => `<p data-reveal="up">${esc(p)}</p>`)}
         <p class="old-name" data-reveal="up"><b>✦</b> ${esc(a.oldName)}</p>
       </div>

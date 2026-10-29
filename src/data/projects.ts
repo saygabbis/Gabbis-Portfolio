@@ -2,7 +2,8 @@ import type { L } from '../i18n';
 
 export interface Project {
   name: string;
-  emoji: string;
+  /** Qual símbolo do Missão Verde marca o card (1 a 5). */
+  symbol: 1 | 2 | 3 | 4 | 5;
   /** Cor do card (variável CSS do tema). */
   color: 'crimson' | 'sky' | 'orchid';
   status: 'live' | 'wip' | 'active';
@@ -15,7 +16,7 @@ export interface Project {
 export const projects: Project[] = [
   {
     name: 'TetOS',
-    emoji: '🥖',
+    symbol: 4,
     color: 'crimson',
     status: 'active',
     text: {
@@ -27,7 +28,7 @@ export const projects: Project[] = [
   },
   {
     name: 'DailyWays',
-    emoji: '🗂️',
+    symbol: 1,
     color: 'sky',
     status: 'live',
     text: {
@@ -40,7 +41,7 @@ export const projects: Project[] = [
   },
   {
     name: 'EVEREST',
-    emoji: '🏔️',
+    symbol: 2,
     color: 'orchid',
     status: 'wip',
     text: {
@@ -52,7 +53,7 @@ export const projects: Project[] = [
   },
   {
     name: 'StepByStep',
-    emoji: '👣',
+    symbol: 5,
     color: 'crimson',
     status: 'wip',
     text: {

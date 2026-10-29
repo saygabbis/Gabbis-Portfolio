@@ -1,3 +1,4 @@
+import { doodle, symbol } from '../components/doodles';
 import { icon } from '../components/icons';
 import { each, esc } from '../core/dom';
 import { popLetters } from '../core/motion';
@@ -11,17 +12,17 @@ export const codePage: Page = {
     const c = t().code;
     return `
     <section class="page-head wrap">
-      <h1 class="page-title" data-split>${esc(c.title)}</h1>
+      <h1 class="page-title"><span data-split>${esc(c.title)}</span>${doodle('underline', 'title-underline', 'var(--crimson)')}</h1>
       <p class="page-sub" data-reveal="up">${esc(c.sub)}</p>
     </section>
     <section class="wrap">
       <div class="project-grid" data-stagger>
         ${each(
           projects,
-          (p) => `
-          <article class="project-card project-${p.color}" data-reveal="pop" data-tilt="6">
+          (p, i) => `
+          <article class="project-card index-card project-${p.color}" data-reveal="pop" style="--r:${[-1.2, 0.9, -0.5, 1.4][i % 4]}deg">
             <div class="project-top">
-              <span class="project-emoji" aria-hidden="true">${p.emoji}</span>
+              <span class="project-sym">${symbol(p.symbol)}</span>
               <span class="status status-${p.status}"><i></i>${esc(c.status[p.status])}</span>
             </div>
             <h2>${esc(p.name)}</h2>

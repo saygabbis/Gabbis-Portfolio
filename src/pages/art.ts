@@ -1,3 +1,4 @@
+import { doodle } from '../components/doodles';
 import { gsap } from 'gsap';
 import { artTile, bindGallery } from '../components/gallery';
 import { $, $$, each, esc, reducedMotion } from '../core/dom';
@@ -31,7 +32,7 @@ export const artPage: Page = {
     const f = currentFilter();
     return `
     <section class="page-head wrap">
-      <h1 class="page-title" data-split>${esc(a.title)}</h1>
+      <h1 class="page-title"><span data-split>${esc(a.title)}</span>${doodle('underline', 'title-underline', 'var(--crimson)')}</h1>
       <p class="page-sub" data-reveal="up">${esc(a.sub)}</p>
     </section>
     <section class="wrap">

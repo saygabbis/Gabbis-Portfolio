@@ -1,12 +1,12 @@
+import { doodle } from '../components/doodles';
 import { gsap } from 'gsap';
 import { icon } from '../components/icons';
-import { sticker } from '../components/stickers';
 import { $, $$, each, esc, reducedMotion } from '../core/dom';
 import { openLightbox } from '../core/lightbox';
 import { popLetters } from '../core/motion';
 import type { Page } from '../core/router';
 import { full, thumb } from '../data/art';
-import { tiers, WAITLIST_URL } from '../data/shop';
+import { COMMISSIONS_OPEN, tiers, WAITLIST_URL } from '../data/shop';
 import { lang, t, tr } from '../i18n';
 
 const price = (brl: number, usd: number) => (lang() === 'pt' ? `R$ ${brl}` : `$${usd}`);
@@ -17,8 +17,8 @@ export const shopPage: Page = {
     const s = t().shop;
     return `
     <section class="page-head wrap">
-      <span class="status-pill" data-reveal="pop"><i></i>${esc(s.status)}</span>
-      <h1 class="page-title" data-split>${esc(s.title)}</h1>
+      <span class="status-pill ${COMMISSIONS_OPEN ? '' : 'is-closed'}" data-reveal="pop"><i></i>${esc(COMMISSIONS_OPEN ? s.status.open : s.status.closed)}</span>
+      <h1 class="page-title"><span data-split>${esc(s.title)}</span>${doodle('underline', 'title-underline', 'var(--crimson)')}</h1>
       <p class="page-sub" data-reveal="up">${esc(s.sub)}</p>
     </section>
 
@@ -27,7 +27,7 @@ export const shopPage: Page = {
         ${each(
           tiers,
           (tier, i) => `
-          <article class="tier tier-${['crimson', 'sky', 'orchid', 'crimson'][i]}" data-reveal="pop" data-tilt="5">
+          <article class="tier index-card tier-${['crimson', 'sky', 'orchid', 'crimson'][i]}" data-reveal="pop" style="--r:${[-1, 0.8, -0.6, 1.2][i]}deg">
             <button class="tier-img" data-tier="${i}" data-cursor="✦" aria-label="${esc(tr(tier.name))}">
               <img src="${thumb(tier.image)}" alt="" loading="lazy" />
             </button>
@@ -46,7 +46,6 @@ export const shopPage: Page = {
         ${each(s.process, (p, i) => `<li class="step" data-reveal="up"><span class="step-n">${i + 1}</span><h3>${esc(p.t)}</h3><p>${esc(p.d)}</p></li>`)}
       </ol>
       <div class="pay-card" data-reveal="up">
-        ${sticker('heart', 'pay-sticker')}
         <h3>${esc(s.paymentTitle)}</h3>
         <ul class="checks">${each(s.payment, (p) => `<li>${esc(p)}</li>`)}</ul>
       </div>
@@ -65,8 +64,12 @@ export const shopPage: Page = {
         <div class="accordion" data-stagger>
           ${each(s.terms, (term) => `<details data-reveal="up"><summary>${esc(term.t)}<span class="acc-icon">${icon('plus', 18)}</span></summary><div class="acc-body"><p>${esc(term.d)}</p></div></details>`)}
         </div>
-        <label class="agree" data-reveal="up"><input type="checkbox" id="agree" /> <span>${esc(s.agree)}</span></label>
-        <a class="btn btn-crimson btn-big waitlist" href="${WAITLIST_URL}" target="_blank" rel="noopener" aria-disabled="true" data-magnetic>${esc(s.waitlist)} ${icon('external')}</a>
+        ${
+          COMMISSIONS_OPEN
+            ? `<label class="agree" data-reveal="up"><input type="checkbox" id="agree" /> <span>${esc(s.agree)}</span></label>
+        <a class="btn btn-crimson btn-big waitlist" href="${WAITLIST_URL}" target="_blank" rel="noopener" aria-disabled="true" data-magnetic>${esc(s.waitlist)} ${icon('external')}</a>`
+            : `<p class="closed-note hand" data-reveal="up">${esc(s.closedNote)}</p>`
+        }
       </div>
     </section>`;
   },
@@ -105,8 +108,9 @@ export const shopPage: Page = {
     });
 
     // o botão da lista de espera só libera depois de aceitar os termos
-    const agree = $<HTMLInputElement>('#agree', root)!;
-    const btn = $<HTMLAnchorElement>('.waitlist', root)!;
+    const agree = $<HTMLInputElement>('#agree', root);
+    const btn = $<HTMLAnchorElement>('.waitlist', root);
+    if (!agree || !btn) return;
     const sync = () => btn.setAttribute('aria-disabled', String(!agree.checked));
     agree.addEventListener('change', () => {
       sync();

@@ -1,204 +1,183 @@
 import { gsap } from 'gsap';
+import { doodle, symbol } from '../components/doodles';
 import { bindGallery } from '../components/gallery';
 import { icon } from '../components/icons';
 import { marquee } from '../components/marquee';
-import { sticker, type StickerName } from '../components/stickers';
 import { $, $$, each, esc, isTouch, reducedMotion } from '../core/dom';
 import { popLetters } from '../core/motion';
 import type { Page } from '../core/router';
-import { art, thumb } from '../data/art';
-import { posterSrc, videos } from '../data/motion';
+import { art, full, thumb } from '../data/art';
+import { posterSrc, videos, videoSrc } from '../data/motion';
 import { projects } from '../data/projects';
-import { lang, t } from '../i18n';
+import { COMMISSIONS_OPEN } from '../data/shop';
+import { t } from '../i18n';
 
+const HERO = art.find((a) => a.id === '001')!;
 const featured = art.filter((a) => a.featured);
 
-// figurinhas em volta do avatar: [forma, cor, posição, tamanho, profundidade do parallax]
-const heroStickers: [StickerName, string, string, number, number][] = [
-  ['star', 'crimson', 'top:2%;left:6%', 74, 0.9],
-  ['heart', 'orchid', 'top:8%;right:4%', 64, 1.4],
-  ['sparkle', 'sky', 'bottom:22%;left:-4%', 58, 1.8],
-  ['play', 'sky', 'bottom:4%;right:10%', 70, 1.1],
-  ['code', 'orchid', 'top:44%;right:-6%', 66, 2],
-  ['pencil', 'crimson', 'bottom:0%;left:20%', 60, 1.5],
-  ['flower', 'crimson', 'top:-4%;left:46%', 50, 2.3],
+// posição de cada impressão no mural (grade de 12 colunas): [coluna, largura, inclinação, velocidade do parallax]
+const MURAL: [number, number, number, number][] = [
+  [1, 5, -2, 0.04],
+  [6, 4, 1.5, -0.06],
+  [10, 3, -1, 0.08],
+  [2, 3, 2, -0.04],
+  [5, 4, -1.5, 0.06],
+  [9, 4, 1, -0.03],
+  [1, 4, 1.2, 0.05],
+  [6, 5, -0.8, -0.05],
 ];
-
-const door = (path: string, color: string, title: string, text: string, count: string, preview: string) => `
-  <a class="door door-${color}" href="${path}" data-reveal="up" data-tilt="7" data-cursor="→">
-    <div class="door-preview">${preview}</div>
-    <div class="door-body">
-      <h3>${esc(title)}</h3>
-      <p>${esc(text)}</p>
-      <span class="door-foot"><span class="chip">${count}</span><span class="door-arrow">${icon('arrow')}</span></span>
-    </div>
-  </a>`;
 
 export const home: Page = {
   title: () => t().meta.home,
   render: () => {
     const h = t().home;
-    const artCount = art.length;
+    const n = t().nav;
+    const rows = [
+      { path: '/art', label: n.art, meta: `${art.length} ${h.pieces}`, img: thumb('6') },
+      { path: '/motion', label: n.motion, meta: `${videos.length} ${h.videos}`, img: posterSrc('celeste') },
+      { path: '/code', label: n.code, meta: `${projects.length} ${h.projects}`, img: thumb('centro1') },
+      { path: '/commissions', label: n.shop, meta: COMMISSIONS_OPEN ? h.open : h.closed, img: thumb('class3') },
+      { path: '/about', label: n.about, meta: h.me, img: thumb('fanart') },
+    ];
     return `
-    <section class="hero">
-      <div class="hero-blobs" aria-hidden="true">
-        ${sticker('blob', 'hb hb-1')}${sticker('blob', 'hb hb-2')}${sticker('blob', 'hb hb-3')}
+    <section class="hero wrap">
+      <figure class="hero-print print" style="--r:-1.2deg">
+        <span class="tape tape-sky tape-tl" aria-hidden="true"></span>
+        <span class="tape tape-crimson tape-tr" aria-hidden="true"></span>
+        <div class="hero-img"><img src="${full(HERO.id)}" alt="${esc(HERO.title)}" fetchpriority="high" /></div>
+        <figcaption class="hand">${esc(HERO.title)}, 2024</figcaption>
+      </figure>
+
+      <div class="hero-label paper" style="--r:-3deg">
+        <p class="hero-hello hand">${esc(h.hello)}</p>
+        <h1 class="hero-name"><span data-split>Gabbis</span>${doodle('underline', 'hero-underline', 'var(--crimson)')}</h1>
+        <p class="hero-tag">${esc(h.tagline)}</p>
       </div>
-      <div class="wrap hero-grid">
-        <div class="hero-copy">
-          <p class="hero-hello hand">${esc(h.hello)}</p>
-          <h1 class="hero-name" data-split>Gabbis</h1>
-          <p class="hero-roles">
-            <span class="role-box"><span class="role-word">${esc(h.roles[0])}</span></span>
-            <span class="role-suffix">${esc(h.rolesSuffix)}</span>
-          </p>
-          <p class="hero-intro">${esc(h.intro)}</p>
-          <div class="hero-ctas">
-            <a class="btn btn-crimson" href="/art" data-magnetic>${esc(h.ctaArt)} ${icon('arrow')}</a>
-            <a class="btn btn-paper" href="/commissions" data-magnetic>${esc(h.ctaShop)}</a>
-          </div>
-        </div>
-        <div class="hero-art">
-          <div class="hero-ring" aria-hidden="true"></div>
-          <div class="hero-frame" data-depth="0.4">
-            <img src="/media/art/full/pfp.webp" alt="Gabbis" width="420" height="420" />
-          </div>
-          <span class="hero-bubble hand" data-depth="0.7">${lang() === 'en' ? 'hi!!' : 'oiê!!'}</span>
-          ${each(
-            heroStickers,
-            ([shape, color, pos, size, depth]) =>
-              `<span class="hero-sticker" data-depth="${depth}" style="${pos};width:${size}px;color:var(--${color})">${sticker(shape)}</span>`,
-          )}
+
+      <div class="hero-note hand" aria-hidden="true">${esc(h.madeBy)}${doodle('arrow', 'hero-arrow')}</div>
+      <img class="hero-caruzo" src="${thumb('caruzo')}" alt="" aria-hidden="true" />
+
+      <div class="hero-postit" style="--r:2deg">
+        <p>${esc(h.intro)}</p>
+        <div class="hero-ctas">
+          <a class="btn btn-crimson" href="/art" data-magnetic>${esc(h.ctaArt)} ${icon('arrow')}</a>
+          <a class="btn btn-paper" href="/commissions" data-magnetic>${esc(h.ctaShop)}</a>
         </div>
       </div>
     </section>
 
-    ${marquee(h.marquee, 'marquee-crimson')}
+    ${marquee(h.marquee, 'tape-band')}
 
-    <section class="section wrap">
+    <section class="section wrap index">
       <div class="section-head" data-reveal="up">
-        <h2 class="section-title">${esc(h.whatTitle)}</h2>
-        <p class="hand section-note">${esc(h.whatSub)}</p>
+        <h2 class="section-title">${esc(h.indexTitle)}</h2>
+        <span class="hand section-note">${esc(h.indexNote)}</span>
       </div>
-      <div class="doors" data-stagger>
-        ${door(
-          '/art',
-          'crimson',
-          h.cards.art.title,
-          h.cards.art.text,
-          `${artCount} ${h.pieces}`,
-          `<div class="fan">${each(featured.slice(0, 3), (a) => `<img src="${thumb(a.id)}" alt="" loading="lazy" />`)}</div>`,
+      <ol class="index-list" data-stagger>
+        ${each(
+          rows,
+          (r, i) => `
+          <li data-reveal="up">
+            <a class="index-row" href="${r.path}" data-preview="${r.img}">
+              ${symbol(((i % 5) + 1) as 1 | 2 | 3 | 4 | 5, 'index-sym')}
+              <span class="index-num">0${i + 1}</span>
+              <span class="index-label">${esc(r.label)}</span>
+              <span class="index-dots" aria-hidden="true"></span>
+              <span class="index-meta hand">${esc(r.meta)}</span>
+              <span class="index-arrow">${icon('arrow')}</span>
+            </a>
+          </li>`,
         )}
-        ${door(
-          '/motion',
-          'sky',
-          h.cards.motion.title,
-          h.cards.motion.text,
-          `${videos.length} ${h.projects}`,
-          `<div class="fan fan-video">${each(videos.slice(0, 3), (v) => `<img src="${posterSrc(v.id)}" alt="" loading="lazy" />`)}<span class="fan-play">${icon('play', 30)}</span></div>`,
-        )}
-        ${door(
-          '/code',
-          'orchid',
-          h.cards.code.title,
-          h.cards.code.text,
-          `${projects.length} ${h.projects}`,
-          `<div class="mini-window"><div class="mini-bar"><i></i><i></i><i></i></div><pre><code><b>const</b> gabbis = {
-  draws: <s>true</s>,
-  codes: <s>true</s>,
-  sleeps: <u>maybe</u>,
-};</code></pre></div>`,
-        )}
-      </div>
+      </ol>
+      <div class="index-peek print" aria-hidden="true"><img alt="" /></div>
     </section>
 
-    <section class="section featured">
-      <div class="wrap">
-        <div class="section-head" data-reveal="up">
-          <h2 class="section-title">${esc(h.featuredTitle)}</h2>
-          <p class="hand section-note">${esc(h.featuredSub)}</p>
-        </div>
-        <div class="polaroids" data-stagger>
-          ${each(
-            featured,
-            (a, i) => `
-            <button class="polaroid" data-art="${i}" data-reveal="pop" data-cursor="✦" style="--rot:${[-4, 3, -2, 5, -5, 2, -3, 4][i % 8]}deg" aria-label="${esc(a.title)}">
-              <span class="tape" aria-hidden="true"></span>
+    <section class="section wrap mural-sec">
+      <div class="section-head" data-reveal="up">
+        <h2 class="section-title">${esc(h.muralTitle)}</h2>
+        <span class="hand section-note">${esc(h.muralNote)} ${doodle('arrowLeft', 'note-arrow', 'currentColor')}</span>
+      </div>
+      <div class="mural">
+        ${each(featured, (a, i) => {
+          const [col, span, r, speed] = MURAL[i % MURAL.length];
+          return `
+          <div class="mural-slot" style="grid-column:${col} / span ${span}">
+            <button class="print mural-print" data-art="${i}" data-reveal="pop" data-speed="${speed}" style="--r:${r}deg" aria-label="${esc(a.title)}">
+              <span class="tape ${['tape-sky', 'tape-crimson', 'tape-orchid'][i % 3]}" aria-hidden="true"></span>
               <img src="${thumb(a.id)}" alt="" loading="lazy" decoding="async" />
-              <span class="polaroid-cap hand">${esc(a.title)}</span>
-            </button>`,
-          )}
-        </div>
-        <div class="center" data-reveal="up"><a class="btn btn-paper" href="/art" data-magnetic>${esc(h.seeAll)} ${icon('arrow')}</a></div>
+              <span class="art-cap hand">${esc(a.title)}</span>
+            </button>
+          </div>`;
+        })}
       </div>
+      <div class="center" data-reveal="up"><a class="btn btn-paper" href="/art" data-magnetic>${esc(h.seeAll)} ${icon('arrow')}</a></div>
     </section>
 
-    <section class="section wrap">
-      <div class="cta-band" data-reveal="pop">
-        ${sticker('star', 'cb cb-1')}${sticker('sparkle', 'cb cb-2')}${sticker('heart', 'cb cb-3')}
-        <span class="status-pill"><i></i>${esc(t().shop.status)}</span>
-        <h2>${esc(h.shopTitle)}</h2>
-        <p>${esc(h.shopText)}</p>
-        <a class="btn btn-paper" href="/commissions" data-magnetic>${esc(h.shopCta)} ${icon('arrow')}</a>
+    <section class="section wrap moves">
+      <div class="moves-text" data-reveal="left">
+        <h2 class="section-title">${esc(h.motionTitle)}${doodle('shine', 'moves-shine', 'var(--orchid)')}</h2>
+        <p>${esc(h.motionText)}</p>
+        <a class="btn btn-crimson" href="/motion" data-magnetic>${esc(h.motionCta)} ${icon('play')}</a>
+      </div>
+      <div class="moves-video print" data-reveal="right" style="--r:2deg">
+        <span class="tape tape-orchid" aria-hidden="true"></span>
+        <video src="${videoSrc('celeste')}" poster="${posterSrc('celeste')}" muted loop playsinline autoplay preload="metadata"></video>
       </div>
     </section>`;
   },
   mount: (root) => {
     bindGallery(root, featured);
-    popLetters(root, 0.15);
+    popLetters(root, 0.35);
+
+    // índice: a arte de cada seção aparece seguindo o mouse
+    const peek = $('.index-peek', root)!;
+    const peekImg = peek.querySelector('img')!;
+    const offs: (() => void)[] = [];
+    if (!isTouch() && !reducedMotion()) {
+      const px = gsap.quickTo(peek, 'x', { duration: 0.5, ease: 'power3' });
+      const py = gsap.quickTo(peek, 'y', { duration: 0.5, ease: 'power3' });
+      const list = $('.index-list', root)!;
+      const move = (e: PointerEvent) => {
+        const r = (root.querySelector('.index') as HTMLElement).getBoundingClientRect();
+        px(e.clientX - r.left + 24);
+        py(e.clientY - r.top - 90);
+      };
+      $$('.index-row', root).forEach((row) =>
+        row.addEventListener('pointerenter', () => {
+          peekImg.src = row.dataset.preview!;
+          gsap.to(peek, { opacity: 1, scale: 1, rotate: gsap.utils.random(-6, 6), duration: 0.35, ease: 'back.out(2)' });
+        }),
+      );
+      list.addEventListener('pointermove', move);
+      list.addEventListener('pointerleave', () => gsap.to(peek, { opacity: 0, scale: 0.7, duration: 0.25 }));
+    }
+
     if (reducedMotion()) return;
 
-    // entrada do hero
-    const intro = gsap.timeline({ defaults: { ease: 'back.out(1.8)' } });
+    // entrada: a impressão cai na página, depois a etiqueta e o post-it são colados
+    const intro = gsap.timeline({ defaults: { ease: 'back.out(1.6)' } });
     intro
-      .from('.hero-hello', { y: 20, opacity: 0, rotate: -8, duration: 0.6 }, 0)
-      .from('.hero-roles, .hero-intro, .hero-ctas > *', { y: 30, opacity: 0, duration: 0.7, stagger: 0.08, ease: 'expo.out' }, 0.45)
-      .from('.hero-frame', { scale: 0.3, rotate: -20, opacity: 0, duration: 1 }, 0.1)
-      .from('.hero-ring', { scale: 0.5, opacity: 0, duration: 1, ease: 'expo.out' }, 0.2)
-      .from('.hero-sticker', { scale: 0, rotate: () => gsap.utils.random(-90, 90), duration: 0.7, stagger: 0.06 }, 0.5)
-      .from('.hero-bubble', { scale: 0, rotate: 20, duration: 0.5 }, 1);
+      .from('.hero-print', { y: 60, rotate: -6, opacity: 0, duration: 0.9 }, 0)
+      .from('.hero-print .tape', { scaleX: 0, opacity: 0, duration: 0.4, stagger: 0.1 }, 0.5)
+      .from('.hero-label', { y: -40, rotate: -12, opacity: 0, duration: 0.7 }, 0.25)
+      .from('.hero-postit', { y: 50, rotate: 10, opacity: 0, duration: 0.7 }, 0.55)
+      .from('.hero-caruzo', { y: 120, rotate: 20, duration: 0.9, ease: 'back.out(1.4)' }, 0.8)
+      .from('.hero-note', { scale: 0, rotate: -20, duration: 0.5 }, 1.1);
 
-    // palavra que troca sozinha
-    const words = t().home.roles;
-    const word = $('.role-word', root)!;
-    let w = 0;
-    const swap = gsap.timeline({ repeat: -1, delay: 1.6 });
-    words.forEach(() => {
-      swap
-        .to(word, { yPercent: -110, rotate: -6, opacity: 0, duration: 0.35, ease: 'back.in(2)' }, '+=1.6')
-        .call(() => {
-          w = (w + 1) % words.length;
-          word.textContent = words[w];
-        })
-        .fromTo(word, { yPercent: 110, rotate: 6, opacity: 0 }, { yPercent: 0, rotate: 0, opacity: 1, duration: 0.55, ease: 'back.out(2.5)' });
-    });
-
-    // figurinhas seguem o mouse com profundidades diferentes
-    const layers = $$('[data-depth]', root).map((el) => ({
-      d: Number(el.dataset.depth),
-      x: gsap.quickTo(el, 'x', { duration: 0.9, ease: 'power3' }),
-      y: gsap.quickTo(el, 'y', { duration: 0.9, ease: 'power3' }),
-    }));
-    const move = (e: PointerEvent) => {
-      const px = e.clientX / innerWidth - 0.5;
-      const py = e.clientY / innerHeight - 0.5;
-      layers.forEach((l) => {
-        l.x(px * 40 * l.d);
-        l.y(py * 40 * l.d);
-      });
+    // a ilustração se move um pouco dentro da moldura seguindo o mouse
+    const img = $('.hero-img img', root)!;
+    const ix = gsap.quickTo(img, 'xPercent', { duration: 1.2, ease: 'power3' });
+    const iy = gsap.quickTo(img, 'yPercent', { duration: 1.2, ease: 'power3' });
+    const heroMove = (e: PointerEvent) => {
+      ix((e.clientX / innerWidth - 0.5) * -3);
+      iy((e.clientY / innerHeight - 0.5) * -3);
     };
-    if (!isTouch()) addEventListener('pointermove', move);
-
-    // bolhas do fundo descem mais devagar que a página
-    const blobs = $$('.hb', root);
-    const onScroll = () => blobs.forEach((b, i) => gsap.set(b, { y: scrollY * (0.15 + i * 0.12) }));
-    addEventListener('scroll', onScroll, { passive: true });
+    if (!isTouch()) addEventListener('pointermove', heroMove);
+    offs.push(() => removeEventListener('pointermove', heroMove));
 
     return () => {
       intro.kill();
-      swap.kill();
-      removeEventListener('pointermove', move);
-      removeEventListener('scroll', onScroll);
+      offs.forEach((f) => f());
     };
   },
 };

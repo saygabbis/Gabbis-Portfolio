@@ -10,6 +10,9 @@ export interface Tier {
   includes: L[];
 }
 
+// Troque pra true quando as comissões abrirem: a página inicial e a de comissões mudam sozinhas.
+export const COMMISSIONS_OPEN = false;
+
 export const WAITLIST_URL = 'https://forms.gle/8YTev5UWsdMP9KNV8';
 
 export const tiers: Tier[] = [

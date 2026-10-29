@@ -137,43 +137,46 @@ export function popLetters(root: ParentNode, delay = 0) {
   });
 }
 
-/** Cursor personalizado: uma bolinha que segue o mouse e cresce em cima de links. */
-export function cursor(): Cleanup {
-  if (isTouch() || reducedMotion()) return () => {};
-  const dot = document.createElement('div');
-  dot.className = 'cursor';
-  dot.innerHTML = '<span class="cursor-label"></span>';
-  document.body.append(dot);
-  document.documentElement.classList.add('has-cursor');
-  const label = dot.querySelector<HTMLElement>('.cursor-label')!;
+/** [data-draw]: rabiscos SVG se desenham quando aparecem na tela. */
+export function draw(root: ParentNode): Cleanup {
+  const svgs = $$<SVGSVGElement>('[data-draw]', root);
+  if (reducedMotion()) return () => {};
+  svgs.forEach((svg) => svg.querySelectorAll('path').forEach((p) => gsap.set(p, { strokeDasharray: 1, strokeDashoffset: 1 })));
+  const io = new IntersectionObserver(
+    (entries) =>
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        io.unobserve(entry.target);
+        gsap.to(entry.target.querySelectorAll('path'), { strokeDashoffset: 0, duration: 0.9, ease: 'power2.inOut', stagger: 0.25, delay: 0.25 });
+      }),
+    { threshold: 0.4 },
+  );
+  svgs.forEach((svg) => io.observe(svg));
+  return () => io.disconnect();
+}
 
-  gsap.set(dot, { xPercent: -50, yPercent: -50, x: innerWidth / 2, y: innerHeight / 2 });
-  const xTo = gsap.quickTo(dot, 'x', { duration: 0.35, ease: 'power3' });
-  const yTo = gsap.quickTo(dot, 'y', { duration: 0.35, ease: 'power3' });
-
-  const move = (e: PointerEvent) => {
-    xTo(e.clientX);
-    yTo(e.clientY);
-    const target = (e.target as HTMLElement).closest<HTMLElement>('a, button, [data-cursor], input, textarea, summary');
-    const text = target?.dataset.cursor ?? '';
-    dot.classList.toggle('is-hover', !!target);
-    dot.classList.toggle('has-label', !!text);
-    if (label.textContent !== text) label.textContent = text;
+/** [data-speed]: o elemento rola numa velocidade diferente da página (parallax). Ex.: 0.1 desce devagar, -0.1 sobe. */
+export function parallax(root: ParentNode): Cleanup {
+  const els = $$('[data-speed]', root);
+  if (!els.length || reducedMotion()) return () => {};
+  let raf = 0;
+  const update = () => {
+    raf = 0;
+    const mid = innerHeight / 2;
+    els.forEach((el) => {
+      const r = el.parentElement!.getBoundingClientRect();
+      const offset = r.top + r.height / 2 - mid;
+      gsap.set(el, { y: offset * Number(el.dataset.speed) });
+    });
   };
-  const down = () => dot.classList.add('is-down');
-  const up = () => dot.classList.remove('is-down');
-  const hide = () => dot.classList.add('is-hidden');
-  const show = () => dot.classList.remove('is-hidden');
-  addEventListener('pointermove', move);
-  addEventListener('pointerdown', down);
-  addEventListener('pointerup', up);
-  document.addEventListener('pointerleave', hide);
-  document.addEventListener('pointerenter', show);
+  const onScroll = () => {
+    if (!raf) raf = requestAnimationFrame(update);
+  };
+  addEventListener('scroll', onScroll, { passive: true });
+  update();
   return () => {
-    removeEventListener('pointermove', move);
-    removeEventListener('pointerdown', down);
-    removeEventListener('pointerup', up);
-    dot.remove();
+    removeEventListener('scroll', onScroll);
+    cancelAnimationFrame(raf);
   };
 }
 
@@ -215,6 +218,6 @@ export function clickSparkles(): Cleanup {
 /** Liga todas as interações de uma página recém-renderizada. */
 export function enhance(root: ParentNode): Cleanup {
   split(root);
-  const offs = [reveal(root), tilt(root), magnetic(root)];
+  const offs = [reveal(root), tilt(root), magnetic(root), draw(root), parallax(root)];
   return () => offs.forEach((f) => f());
 }

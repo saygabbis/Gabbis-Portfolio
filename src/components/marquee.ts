@@ -1,6 +1,6 @@
 import { each, esc } from '../core/dom';
 
-/** Faixa inclinada com palavras rolando sem parar. */
+/** Fita adesiva com palavras rolando sem parar. */
 export const marquee = (words: string[], cls = '') => {
   const row = each(words, (w) => `<span>${esc(w)}</span><b aria-hidden="true">✦</b>`);
   return `

@@ -3,6 +3,7 @@ import { $, $$, each, reducedMotion } from '../core/dom';
 import { magnetic } from '../core/motion';
 import { toggleTheme } from '../core/theme';
 import { lang, setLang, t } from '../i18n';
+import { symbol } from './doodles';
 import { icon } from './icons';
 
 export const NAV = [
@@ -14,37 +15,35 @@ export const NAV = [
   { path: '/about', key: 'about' },
 ] as const;
 
-const logo = () => `
-  <a class="logo" href="/" aria-label="Gabbis — ${t().nav.home}">
-    <img class="logo-avatar" src="/media/art/thumb/pfp.webp" alt="" width="44" height="44" />
-    <span class="logo-word" aria-hidden="true">${each([...'gabbis'], (c, i) => `<span style="--i:${i}">${c}</span>`)}</span>
-  </a>`;
+// cor de cada aba do caderno
+const TAB_COLORS = ['crimson', 'sky', 'orchid', 'crimson', 'sky'];
 
 export function renderHeader() {
   const n = t().nav;
   return `
   <header class="site-header">
     <div class="header-bar wrap">
-      ${logo()}
-      <nav class="nav" aria-label="Principal">
+      <a class="logo" href="/" aria-label="Gabbis, ${n.home}">
+        <img class="logo-avatar" src="/media/art/thumb/pfp.webp" alt="" width="46" height="46" />
+        <span class="logo-word">gabbis</span>
+      </a>
+      <nav class="tabs" aria-label="Principal">
         <ul>
-          ${each(NAV.slice(1), (r) => `<li><a href="${r.path}" data-nav="${r.path}">${n[r.key]}</a></li>`)}
+          ${each(NAV.slice(1), (r, i) => `<li><a class="tab tab-${TAB_COLORS[i]}" href="${r.path}" data-nav="${r.path}">${n[r.key]}</a></li>`)}
         </ul>
       </nav>
       <div class="header-actions">
-        <button class="pill-btn lang-btn" data-action="lang" aria-label="${n.lang}" data-magnetic>
-          <span class="${lang() === 'pt' ? 'on' : ''}">PT</span><span class="${lang() === 'en' ? 'on' : ''}">EN</span>
-        </button>
-        <button class="round-btn theme-btn" data-action="theme" aria-label="${n.theme}" data-magnetic>
+        <button class="chip-btn lang-btn" data-action="lang" aria-label="${n.lang}" data-magnetic>${lang() === 'pt' ? 'EN' : 'PT'}</button>
+        <button class="chip-btn theme-btn" data-action="theme" aria-label="${n.theme}" data-magnetic>
           <span class="theme-sun">${icon('sun')}</span><span class="theme-moon">${icon('moon')}</span>
         </button>
-        <button class="round-btn menu-btn" data-action="menu" aria-label="${n.menu}" aria-expanded="false" aria-controls="mobile-menu">${icon('menu')}</button>
+        <button class="chip-btn menu-btn" data-action="menu" aria-label="${n.menu}" aria-expanded="false" aria-controls="mobile-menu">${icon('menu')}</button>
       </div>
     </div>
     <div class="mobile-menu" id="mobile-menu" hidden>
-      <ul>
-        ${each(NAV, (r, i) => `<li><a href="${r.path}" data-nav="${r.path}" style="--i:${i}">${n[r.key]}</a></li>`)}
-      </ul>
+      <ol>
+        ${each(NAV, (r, i) => `<li><a href="${r.path}" data-nav="${r.path}">${symbol(((i % 5) + 1) as 1 | 2 | 3 | 4 | 5)}<span>${n[r.key]}</span></a></li>`)}
+      </ol>
     </div>
   </header>`;
 }
@@ -58,12 +57,12 @@ function setMenu(open: boolean) {
   if (open) {
     menu.hidden = false;
     if (!reducedMotion()) {
-      gsap.fromTo(menu, { clipPath: 'circle(0% at 100% 0%)' }, { clipPath: 'circle(150% at 100% 0%)', duration: 0.7, ease: 'expo.out' });
-      gsap.fromTo($$('a', menu), { y: 60, opacity: 0, rotate: 6 }, { y: 0, opacity: 1, rotate: 0, stagger: 0.05, duration: 0.6, ease: 'back.out(2)', delay: 0.1 });
+      gsap.fromTo(menu, { yPercent: -100, rotate: -4 }, { yPercent: 0, rotate: 0, duration: 0.6, ease: 'power3.out' });
+      gsap.fromTo($$('li', menu), { x: -30, opacity: 0 }, { x: 0, opacity: 1, stagger: 0.05, duration: 0.45, ease: 'power2.out', delay: 0.15 });
     }
   } else if (!menu.hidden) {
     if (reducedMotion()) menu.hidden = true;
-    else gsap.to(menu, { clipPath: 'circle(0% at 100% 0%)', duration: 0.45, ease: 'expo.in', onComplete: () => void (menu.hidden = true) });
+    else gsap.to(menu, { yPercent: -100, rotate: 3, duration: 0.4, ease: 'power2.in', onComplete: () => void (menu.hidden = true) });
   }
 }
 
@@ -102,7 +101,6 @@ export function mountHeader(root: HTMLElement) {
   addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && document.documentElement.classList.contains('menu-open')) setMenu(false);
   });
-
-  // cabeçalho encolhe e ganha fundo depois que rola um pouco
+  // cabeçalho ganha fundo de papel depois que rola um pouco
   addEventListener('scroll', onScroll, { passive: true });
 }

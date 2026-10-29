@@ -7,7 +7,7 @@ import './styles/pages.css';
 import { renderFooter } from './components/footer';
 import { markActive, mountHeader, renderHeader } from './components/header';
 import { $ } from './core/dom';
-import { clickSparkles, cursor, enhance } from './core/motion';
+import { clickSparkles, enhance } from './core/motion';
 import { currentRoute, refresh, startRouter, type Page } from './core/router';
 import { onLangChange, t } from './i18n';
 import { aboutPage } from './pages/about';
@@ -66,5 +66,4 @@ onLangChange(() => {
   refresh();
 });
 
-cursor();
 clickSparkles();
