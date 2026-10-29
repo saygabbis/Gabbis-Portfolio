@@ -6,7 +6,7 @@ export const theme = () => (document.documentElement.dataset.theme as Theme) || 
 
 function apply(next: Theme) {
   document.documentElement.dataset.theme = next;
-  document.querySelector('meta[name="theme-color"]')?.setAttribute('content', next === 'dark' ? '#1b1420' : '#f7efe4');
+  document.querySelector('meta[name="theme-color"]')?.setAttribute('content', next === 'dark' ? '#3b1226' : '#e2456f');
   try {
     localStorage.setItem('theme', next);
   } catch {}

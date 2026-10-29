@@ -1,5 +1,5 @@
-import { doodle } from '../components/doodles';
 import { icon } from '../components/icons';
+import { pageHead } from '../components/page-head';
 import { $$, each, esc, isTouch } from '../core/dom';
 import { openLightbox, type LightboxItem } from '../core/lightbox';
 import { popLetters } from '../core/motion';
@@ -12,17 +12,13 @@ export const motionPage: Page = {
   render: () => {
     const m = t().motion;
     return `
-    <section class="page-head wrap">
-      <h1 class="page-title"><span data-split>${esc(m.title)}</span>${doodle('underline', 'title-underline', 'var(--crimson)')}</h1>
-      <p class="page-sub" data-reveal="up">${esc(m.sub)}</p>
-    </section>
+    ${pageHead(m.title, m.sub)}
     <section class="wrap">
       <div class="video-grid" data-stagger>
         ${each(
           videos,
           (v, i) => `
-          <article class="video-card print" data-reveal="pop" style="--r:${[-1.4, 1.2, -0.6][i % 3]}deg">
-            <span class="tape ${['tape-sky', 'tape-crimson', 'tape-orchid'][i % 3]}" aria-hidden="true"></span>
+          <article class="video-card" data-reveal="pop">
             <button class="video-thumb" data-video="${i}" data-cursor="▶" aria-label="${esc(m.play)}: ${esc(v.title)}">
               <video src="${videoSrc(v.id)}" poster="${posterSrc(v.id)}" muted loop playsinline preload="none"></video>
               <span class="video-play">${icon('play', 34)}</span>

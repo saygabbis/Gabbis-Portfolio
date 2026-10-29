@@ -25,33 +25,29 @@ const clean = (p: string) => (p.length > 1 ? p.replace(/\/+$/, '') : p);
 export const currentRoute = () => currentPath;
 export const pageFor = (path: string) => routes[clean(path)] ?? notFound;
 
-// ---- transição: uma folha do caderno vira por cima da página ----
+// ---- transição: um círculo escuro cobre a tela com uma estrela girando ----
 let curtain: HTMLElement;
-let sheet: HTMLElement;
 function buildCurtain() {
   curtain = document.createElement('div');
-  curtain.className = 'page-turn';
+  curtain.className = 'wipe';
   curtain.setAttribute('aria-hidden', 'true');
-  curtain.innerHTML = '<div class="sheet"><span class="sheet-shade"></span></div>';
+  curtain.innerHTML = '<span class="wipe-star">✦</span>';
   document.body.append(curtain);
-  sheet = curtain.querySelector('.sheet')!;
 }
 
 function curtainIn() {
   return gsap
     .timeline()
     .set(curtain, { visibility: 'visible' })
-    .set(sheet, { transformOrigin: '0% 50%' })
-    .fromTo(sheet, { rotationY: -110 }, { rotationY: 0, duration: 0.55, ease: 'power3.inOut' })
-    .fromTo('.sheet-shade', { opacity: 0.6 }, { opacity: 0, duration: 0.55, ease: 'power2.out' }, 0);
+    .fromTo(curtain, { clipPath: 'circle(0% at 50% 100%)' }, { clipPath: 'circle(150% at 50% 100%)', duration: 0.55, ease: 'power3.in' })
+    .fromTo('.wipe-star', { scale: 0, rotate: -180 }, { scale: 1, rotate: 0, duration: 0.4, ease: 'back.out(2)' }, '-=0.2');
 }
 
 function curtainOut() {
   return gsap
     .timeline()
-    .set(sheet, { transformOrigin: '100% 50%' })
-    .to(sheet, { rotationY: 110, duration: 0.6, ease: 'power3.inOut' })
-    .to('.sheet-shade', { opacity: 0.6, duration: 0.6, ease: 'power2.in' }, 0)
+    .to('.wipe-star', { scale: 0, rotate: 180, duration: 0.3, ease: 'back.in(2)' })
+    .to(curtain, { clipPath: 'circle(0% at 50% 0%)', duration: 0.55, ease: 'power3.out' }, '-=0.1')
     .set(curtain, { visibility: 'hidden' });
 }
 
