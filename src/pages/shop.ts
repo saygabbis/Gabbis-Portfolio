@@ -1,5 +1,5 @@
+import { doodle } from '../components/doodles';
 import { gsap } from 'gsap';
-import { pageHead } from '../components/page-head';
 import { icon } from '../components/icons';
 import { $, $$, each, esc, reducedMotion } from '../core/dom';
 import { openLightbox } from '../core/lightbox';
@@ -16,14 +16,18 @@ export const shopPage: Page = {
   render: () => {
     const s = t().shop;
     return `
-    ${pageHead(s.title, s.sub, `<span class="badge ${COMMISSIONS_OPEN ? 'badge-open' : 'badge-closed'}" data-reveal="pop"><i></i>${esc(COMMISSIONS_OPEN ? s.status.open : s.status.closed)}</span>`)}
+    <section class="page-head wrap">
+      <span class="status-pill ${COMMISSIONS_OPEN ? '' : 'is-closed'}" data-reveal="pop"><i></i>${esc(COMMISSIONS_OPEN ? s.status.open : s.status.closed)}</span>
+      <h1 class="page-title"><span data-split>${esc(s.title)}</span>${doodle('underline', 'title-underline', 'var(--crimson)')}</h1>
+      <p class="page-sub" data-reveal="up">${esc(s.sub)}</p>
+    </section>
 
     <section class="wrap">
       <div class="tier-grid" data-stagger>
         ${each(
           tiers,
           (tier, i) => `
-          <article class="tier" data-reveal="pop">
+          <article class="tier index-card tier-${['crimson', 'sky', 'orchid', 'crimson'][i]}" data-reveal="pop" style="--r:${[-1, 0.8, -0.6, 1.2][i]}deg">
             <button class="tier-img" data-tier="${i}" data-cursor="✦" aria-label="${esc(tr(tier.name))}">
               <img src="${thumb(tier.image)}" alt="" loading="lazy" />
             </button>
@@ -63,7 +67,7 @@ export const shopPage: Page = {
         ${
           COMMISSIONS_OPEN
             ? `<label class="agree" data-reveal="up"><input type="checkbox" id="agree" /> <span>${esc(s.agree)}</span></label>
-        <a class="pill pill-sky waitlist" href="${WAITLIST_URL}" target="_blank" rel="noopener" aria-disabled="true" data-magnetic>${esc(s.waitlist)} ${icon('external')}</a>`
+        <a class="btn btn-crimson btn-big waitlist" href="${WAITLIST_URL}" target="_blank" rel="noopener" aria-disabled="true" data-magnetic>${esc(s.waitlist)} ${icon('external')}</a>`
             : `<p class="closed-note hand" data-reveal="up">${esc(s.closedNote)}</p>`
         }
       </div>

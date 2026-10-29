@@ -137,6 +137,24 @@ export function popLetters(root: ParentNode, delay = 0) {
   });
 }
 
+/** [data-draw]: rabiscos SVG se desenham quando aparecem na tela. */
+export function draw(root: ParentNode): Cleanup {
+  const svgs = $$<SVGSVGElement>('[data-draw]', root);
+  if (reducedMotion()) return () => {};
+  svgs.forEach((svg) => svg.querySelectorAll('path').forEach((p) => gsap.set(p, { strokeDasharray: 1, strokeDashoffset: 1 })));
+  const io = new IntersectionObserver(
+    (entries) =>
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        io.unobserve(entry.target);
+        gsap.to(entry.target.querySelectorAll('path'), { strokeDashoffset: 0, duration: 0.9, ease: 'power2.inOut', stagger: 0.25, delay: 0.25 });
+      }),
+    { threshold: 0.4 },
+  );
+  svgs.forEach((svg) => io.observe(svg));
+  return () => io.disconnect();
+}
+
 /** [data-speed]: o elemento rola numa velocidade diferente da página (parallax). Ex.: 0.1 desce devagar, -0.1 sobe. */
 export function parallax(root: ParentNode): Cleanup {
   const els = $$('[data-speed]', root);
@@ -200,6 +218,6 @@ export function clickSparkles(): Cleanup {
 /** Liga todas as interações de uma página recém-renderizada. */
 export function enhance(root: ParentNode): Cleanup {
   split(root);
-  const offs = [reveal(root), tilt(root), magnetic(root), parallax(root)];
+  const offs = [reveal(root), tilt(root), magnetic(root), draw(root), parallax(root)];
   return () => offs.forEach((f) => f());
 }

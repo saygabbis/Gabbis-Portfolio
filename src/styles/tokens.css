@@ -1,43 +1,67 @@
-/* Base carmim rosado chapado (como o roxo do vippori), seções quase pretas e destaques
-   azul-esverdeado e roxinho. O vinho e o preto vêm da ficha de personagem da Gabbi. */
+/* Paleta da Gabbis: carmim rosado, azul-esverdeado puxado pro roxo e roxinho rosado, em cima de papel. */
 :root {
-  --font-display: 'Baloo 2', 'Rubik', system-ui, sans-serif;
-  --font-body: 'Rubik', system-ui, sans-serif;
+  --font-display: 'Shantell Sans', 'Nunito', system-ui, sans-serif;
+  --font-body: 'Nunito', system-ui, sans-serif;
+  --font-hand: 'Caveat', 'Comic Sans MS', cursive;
 
-  --radius: 18px;
-  --radius-lg: 28px;
+  --radius: 6px;
   --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
-  --page-w: 1180px;
+  --page-w: 1200px;
   --gutter: clamp(16px, 4vw, 40px);
 
-  --white: #ffffff;
-  --cream: #fff1f4;
-  --ink: #170c13;
-  --sky: #7dcaf3;
-  --orchid: #d9a3f7;
-  --wine: #8e1b35;
+  /* borda "desenhada à mão": cantos todos diferentes */
+  --sketchy: 255px 18px 225px 18px / 18px 225px 18px 255px;
+  --sketchy-2: 18px 225px 18px 255px / 255px 18px 225px 18px;
 }
 
 :root,
 [data-theme='light'] {
-  --bg: #e2456f;
-  --bg-2: #d2375f;
-  --night: #1a0d15;
-  --night-2: #261420;
-  --night-3: #331a2a;
-  --burst: rgb(255 255 255 / 0.07);
-  --shadow-3d: #8e1b35;
+  --paper: #f7efe4;
+  --paper-2: #efe3d2;
+  --card: #fffcf6;
+  --ink: #2a1b2e;
+  --ink-soft: #6c5869;
+  --rule: rgb(90 140 190 / 0.22);
+  --margin-line: rgb(217 58 95 / 0.35);
+
+  --crimson: #d93a5f;
+  --crimson-soft: #f7c9d4;
+  --sky: #4f9fd0;
+  --sky-soft: #cfe6f5;
+  --orchid: #b277d4;
+  --orchid-soft: #ead8f5;
+  --on-accent: #ffffff;
+
+  --lift: 0 1px 2px rgb(60 30 40 / 0.12), 0 12px 26px -10px rgb(60 30 40 / 0.4);
+  --lift-hi: 0 2px 4px rgb(60 30 40 / 0.14), 0 26px 40px -14px rgb(60 30 40 / 0.45);
+  --grain-opacity: 0.5;
+  --grain-blend: multiply;
+  --sym-filter: none;
   color-scheme: light;
 }
 
 [data-theme='dark'] {
-  --bg: #3b1226;
-  --bg-2: #4a1830;
-  --night: #0f0709;
-  --night-2: #1c0e16;
-  --night-3: #2a1521;
-  --burst: rgb(255 255 255 / 0.05);
-  --shadow-3d: #170c13;
+  --paper: #1b1420;
+  --paper-2: #241b2b;
+  --card: #2b2132;
+  --ink: #f5e9ee;
+  --ink-soft: #bba7b8;
+  --rule: rgb(120 180 230 / 0.14);
+  --margin-line: rgb(255 92 133 / 0.3);
+
+  --crimson: #ff5c85;
+  --crimson-soft: #4b2033;
+  --sky: #73c0ee;
+  --sky-soft: #1d3247;
+  --orchid: #d49af0;
+  --orchid-soft: #3a2649;
+  --on-accent: #1b1420;
+
+  --lift: 0 1px 2px rgb(0 0 0 / 0.4), 0 14px 28px -10px rgb(0 0 0 / 0.7);
+  --lift-hi: 0 2px 4px rgb(0 0 0 / 0.45), 0 28px 44px -14px rgb(0 0 0 / 0.75);
+  --grain-opacity: 0.12;
+  --grain-blend: screen;
+  --sym-filter: invert(1);
   color-scheme: dark;
 }

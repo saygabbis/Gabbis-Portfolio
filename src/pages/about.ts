@@ -1,7 +1,6 @@
 import { gsap } from 'gsap';
-import { mascot } from '../components/mascot';
-import { pageHead } from '../components/page-head';
 import { icon } from '../components/icons';
+import { doodle } from '../components/doodles';
 import { $, each, esc, reducedMotion } from '../core/dom';
 import { openLightbox } from '../core/lightbox';
 import { popLetters } from '../core/motion';
@@ -17,9 +16,14 @@ export const aboutPage: Page = {
   render: () => {
     const a = t().about;
     return `
-    ${pageHead(a.title)}
+    <section class="page-head wrap">
+      <h1 class="page-title"><span data-split>${esc(a.title)}</span>${doodle('underline', 'title-underline', 'var(--crimson)')}</h1>
+    </section>
     <section class="wrap about-grid">
-      <div class="about-mascot" data-reveal="pop">${mascot()}</div>
+      <div class="about-photo" data-reveal="pop">
+        <img src="/media/art/full/pfp.webp" alt="Gabbis" />
+        <span class="tape tape-crimson tape-tl" aria-hidden="true"></span><span class="tape tape-sky tape-tr" aria-hidden="true"></span>${doodle('star', 'ap ap-1', 'var(--crimson)')}${doodle('spiral', 'ap ap-2', 'var(--sky)')}
+      </div>
       <div class="about-text">
         <h2 class="about-hello" data-reveal="up">${esc(a.hello)}</h2>
         ${each(a.bio, (p) => `<p data-reveal="up">${esc(p)}</p>`)}
@@ -53,7 +57,7 @@ export const aboutPage: Page = {
         <div class="find-group find-contact" data-reveal="pop">
           <h3>${esc(a.groups.contact)}</h3>
           <a class="find-link" href="mailto:${EMAIL}"><span class="find-icon">${icon('mail')}</span><span><strong>E-mail</strong><small>${EMAIL}</small></span></a>
-          <button class="pill pill-small pill-light copy-mail" data-magnetic>${icon('copy', 18)} <span>${esc(a.emailCopy)}</span></button>
+          <button class="btn btn-small btn-paper copy-mail" data-magnetic>${icon('copy', 18)} <span>${esc(a.emailCopy)}</span></button>
         </div>
       </div>
     </section>

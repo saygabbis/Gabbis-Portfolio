@@ -3,11 +3,16 @@ import { openLightbox, type LightboxItem } from '../core/lightbox';
 import { full, ratio, thumb, type Art } from '../data/art';
 import { lang, t } from '../i18n';
 
-/** Card de uma arte (só a arte, cantos arredondados); abre no lightbox ao clicar. */
+// inclinações e fitas variadas pra galeria não parecer uma grade de template
+const TILTS = [-1.6, 1.1, -0.6, 1.8, -1.2, 0.5, 1.4, -1.9];
+const TAPES = ['tape-sky', 'tape-crimson', 'tape-orchid', '', 'tape-sky tape-corner', 'tape-orchid', '', 'tape-crimson tape-corner'];
+
+/** Impressão de uma arte colada no caderno; abre no lightbox ao clicar. */
 export const artTile = (a: Art, i: number) => `
-  <button class="art-tile" data-art="${i}" data-reveal="pop" style="--ratio:${ratio(a.id).toFixed(4)}" aria-label="${esc(a.title)}">
-    <img src="${thumb(a.id)}" alt="" loading="lazy" decoding="async" />
-    <span class="art-tile-label">${esc(a.title)}</span>
+  <button class="art-tile print" data-art="${i}" data-reveal="pop" style="--r:${TILTS[i % TILTS.length]}deg;--ratio:${ratio(a.id).toFixed(4)}" aria-label="${esc(a.title)}">
+    ${TAPES[i % TAPES.length] ? `<span class="tape ${TAPES[i % TAPES.length]}" aria-hidden="true"></span>` : ''}
+    <span class="art-img"><img src="${thumb(a.id)}" alt="" loading="lazy" decoding="async" /></span>
+    <span class="art-cap hand">${esc(a.title)}</span>
   </button>`;
 
 /** Faz os cards [data-art] dentro de `root` abrirem `list` no lightbox. */
