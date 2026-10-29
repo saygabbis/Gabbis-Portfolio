@@ -1,0 +1,6 @@
+node_modules/
+dist/
+# originais pesados das artes/vídeos (o site usa as versões otimizadas em public/media)
+media-src/
+.DS_Store
+.claude/
